@@ -49,9 +49,9 @@ python3 generate_ppt.py --channel-id "CHANNEL_ID" --query "Update the financial 
    ```bash
    POPAI_API_KEY="$POPAI_API_KEY" python3 generate_ppt.py --query "TOPIC" --output /tmp/ppt_progress.jsonl [--file FILE1 FILE2 ...] [--tpl TEMPLATE.pptx]
    ```
-   Tell user: "PPT generation started in background (est. 3-5 min). I'll check progress every ~30 seconds."
+   Tell user: "PPT generation started in background (est. 3-5 min). I'll check progress every minute."
 5. **Poll loop** — repeat until done:
-   - Sleep ~30 seconds
+   - Sleep ~60 seconds
    - Read `/tmp/ppt_progress.jsonl`
    - Find the latest `task` events and report to user: "Still working — current task: <content>"
    - If a `pptx_ready` line exists → done, go to step 6
@@ -78,7 +78,7 @@ Use when the user wants to revise or improve an already-generated PPT (e.g. "add
    ```bash
    POPAI_API_KEY="$POPAI_API_KEY" python3 generate_ppt.py --channel-id "CHANNEL_ID" --query "MODIFICATION_INSTRUCTION" --output /tmp/ppt_progress.jsonl [--file FILE1 ...]
    ```
-   Tell user: "Modification started in background. I'll check progress every ~30 seconds."
+   Tell user: "Modification started in background. I'll check progress every minute."
 5. Follow the same **Poll loop** (steps 5-6) as Initial Generation
 
 ## Output
