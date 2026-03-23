@@ -44,33 +44,16 @@ python3 generate_ppt.py --channel-id "CHANNEL_ID" --query "Update the financial 
 
 1. Get PPT topic from user
 2. If user provides local files, pass as `--file` (reference, max 5) and/or `--tpl` (PPT template for layout)
-3. Choose an output file path, e.g. `/tmp/ppt_progress.jsonl`
-4. Run script in **background** (`block_until_ms: 0`):
+3. Run script (timeout: 600000):
    ```bash
-   POPAI_API_KEY="$POPAI_API_KEY" python3 generate_ppt.py --query "TOPIC" --output /tmp/ppt_progress.jsonl [--file FILE1 FILE2 ...] [--tpl TEMPLATE.pptx]
+   POPAI_API_KEY="$POPAI_API_KEY" python3 generate_ppt.py --query "TOPIC" [--file FILE1 FILE2 ...] [--tpl TEMPLATE.pptx]
    ```
-   The shell will immediately return `"Command still running (session ..., pid ...)"` — **this is expected**. Do NOT try to read the process output. All progress is written to `/tmp/ppt_progress.jsonl`.
-
-   Tell user: "PPT generation started in background (est. 3-5 min). I'll check progress every minute."
-5. **Poll loop** — run the following steps repeatedly until done:
-   - Step a: sleep 60 seconds
-     ```bash
-     sleep 60
-     ```
-   - Step b: read the output file
-     ```bash
-     cat /tmp/ppt_progress.jsonl
-     ```
-   - Step c: parse each JSON line from the file output:
-     - Report the latest `task` event to user: "Still working — current task: <content>"
-     - If any line has `"type": "pptx_ready"` → done, exit loop and go to step 6
-     - If any line has `"type": "error"` → report the `message` field and stop
-     - If file is empty or does not exist → script is still in upload/channel-creation phase, keep waiting
-6. Present final results:
-   - Show `summary` text as the generation summary
+   Tell user: "Generating your PPT, estimated 5 minutes..."
+4. Parse stdout JSON lines, present final results to user:
+   - Show `summary` text (from `NODE_END` event) as the generation summary
    - Show `pptx_url` as the download link: "Download PPT: <pptx_url>"
    - Show `web_url` as the site link: "View/Edit online: <web_url>"
-7. **Save the `channel_id`** from `web_url` (last path segment of `https://www.popai.pro/agentic-pptx/<channelId>`) for potential follow-up modifications
+5. **Save the `channel_id`** from `web_url` (last path segment of `https://www.popai.pro/agentic-pptx/<channelId>`) for potential follow-up modifications
 
 ### Multi-Round Modification
 
@@ -84,14 +67,12 @@ Use when the user wants to revise or improve an already-generated PPT (e.g. "add
 1. Confirm the `channel_id` from the previous generation (stored from `web_url`)
 2. Get modification instruction from user
 3. If user provides additional reference files, pass as `--file`
-4. Run script in **background** (`block_until_ms: 0`):
+4. Run script (timeout: 600000):
    ```bash
-   POPAI_API_KEY="$POPAI_API_KEY" python3 generate_ppt.py --channel-id "CHANNEL_ID" --query "MODIFICATION_INSTRUCTION" --output /tmp/ppt_progress.jsonl [--file FILE1 ...]
+   POPAI_API_KEY="$POPAI_API_KEY" python3 generate_ppt.py --channel-id "CHANNEL_ID" --query "MODIFICATION_INSTRUCTION" [--file FILE1 ...]
    ```
-   The shell will immediately return `"Command still running"` — **this is expected**. Do NOT try to read the process output. All progress is written to `/tmp/ppt_progress.jsonl`.
-
-   Tell user: "Modification started in background. I'll check progress every minute."
-5. Follow the same **Poll loop** (step 5 of Initial Generation) to monitor `/tmp/ppt_progress.jsonl`
+   Tell user: "Applying your modifications, estimated 3-5 minutes..."
+5. Parse and present results the same way as initial generation (new `pptx_url` and `web_url`)
 
 ## Output
 
