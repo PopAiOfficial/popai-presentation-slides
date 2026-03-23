@@ -49,13 +49,23 @@ python3 generate_ppt.py --channel-id "CHANNEL_ID" --query "Update the financial 
    ```bash
    POPAI_API_KEY="$POPAI_API_KEY" python3 generate_ppt.py --query "TOPIC" --output /tmp/ppt_progress.jsonl [--file FILE1 FILE2 ...] [--tpl TEMPLATE.pptx]
    ```
+   The shell will immediately return `"Command still running (session ..., pid ...)"` — **this is expected**. Do NOT try to read the process output. All progress is written to `/tmp/ppt_progress.jsonl`.
+
    Tell user: "PPT generation started in background (est. 3-5 min). I'll check progress every minute."
-5. **Poll loop** — repeat until done:
-   - Sleep ~60 seconds
-   - Read `/tmp/ppt_progress.jsonl`
-   - Find the latest `task` events and report to user: "Still working — current task: <content>"
-   - If a `pptx_ready` line exists → done, go to step 6
-   - If an `error` line exists → report error and stop
+5. **Poll loop** — run the following steps repeatedly until done:
+   - Step a: sleep 60 seconds
+     ```bash
+     sleep 60
+     ```
+   - Step b: read the output file
+     ```bash
+     cat /tmp/ppt_progress.jsonl
+     ```
+   - Step c: parse each JSON line from the file output:
+     - Report the latest `task` event to user: "Still working — current task: <content>"
+     - If any line has `"type": "pptx_ready"` → done, exit loop and go to step 6
+     - If any line has `"type": "error"` → report the `message` field and stop
+     - If file is empty or does not exist → script is still in upload/channel-creation phase, keep waiting
 6. Present final results:
    - Show `summary` text as the generation summary
    - Show `pptx_url` as the download link: "Download PPT: <pptx_url>"
@@ -78,8 +88,10 @@ Use when the user wants to revise or improve an already-generated PPT (e.g. "add
    ```bash
    POPAI_API_KEY="$POPAI_API_KEY" python3 generate_ppt.py --channel-id "CHANNEL_ID" --query "MODIFICATION_INSTRUCTION" --output /tmp/ppt_progress.jsonl [--file FILE1 ...]
    ```
+   The shell will immediately return `"Command still running"` — **this is expected**. Do NOT try to read the process output. All progress is written to `/tmp/ppt_progress.jsonl`.
+
    Tell user: "Modification started in background. I'll check progress every minute."
-5. Follow the same **Poll loop** (steps 5-6) as Initial Generation
+5. Follow the same **Poll loop** (step 5 of Initial Generation) to monitor `/tmp/ppt_progress.jsonl`
 
 ## Output
 
