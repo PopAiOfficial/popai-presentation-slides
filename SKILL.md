@@ -12,6 +12,8 @@ Create presentations programmatically via PopAI's API. The API has powerful buil
 1. Get API key from https://www.popai.pro
 2. Store in environment: `export POPAI_API_KEY=xxx`
 
+Tips: You can save the key in `TOOLS.md` for future reference.
+
 ## Scripts
 - `generate_ppt.py` - Generate PPT via PopAI API (upload files → create channel → SSE stream → get pptx); also supports multi-round modification via `--channel-id`
 
