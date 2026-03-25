@@ -281,9 +281,9 @@ def main():
     parser.add_argument("--channel-id", "-c", help="Existing channel ID for multi-round modification (skips channel creation)")
     args = parser.parse_args()
 
-    api_key = os.getenv("POPAI_API_KEY")
+    api_key = os.getenv("POPAI_ACCESS_TOKEN")
     if not api_key:
-        print("Error: POPAI_API_KEY environment variable is required.", file=sys.stderr)
+        print("Error: POPAI_ACCESS_TOKEN environment variable is required.", file=sys.stderr)
         sys.exit(1)
 
     try:
