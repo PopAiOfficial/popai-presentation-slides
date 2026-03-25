@@ -1,6 +1,6 @@
 ---
 name: popai-presentations
-description: Create presentations (PPT) using PopAI API. Use when asked to create slides, presentations, decks, or PPT content. Has built-in research capabilities — just pass a topic. Supports uploading reference files (pptx/pdf/docx/images) and pptx templates with 100% layout fidelity. Also supports multi-round modifications to an existing PPT.
+description: Create presentations (PPT) using PopAI API. Use when asked to create slides, presentations, decks, or PPT content. Has built-in research capabilities — just pass a topic. Supports uploading reference files (pptx/pdf/docx/images). Supports user's own pptx template with 100% layout fidelity. Also supports multi-round modifications to an existing PPT.
 metadata: { "openclaw": { "emoji": "📽️", "requires": { "bins": ["python3"], "env":["POPAI_API_KEY"]},"primaryEnv":"POPAI_API_KEY" } }
 ---
 
@@ -33,6 +33,9 @@ python3 generate_ppt.py --query "Tesla Annual Report" --tpl template.pptx --file
 # Multi-round modification: modify an existing PPT (template cannot be changed)
 python3 generate_ppt.py --channel-id "CHANNEL_ID" --query "Add a competitive analysis slide and make the color scheme blue"
 
+# With URLs as reference material (included in query)
+python3 generate_ppt.py --query "Create a PPT summarizing this article: https://example.com/report.html"
+
 # Multi-round modification with additional reference files
 python3 generate_ppt.py --channel-id "CHANNEL_ID" --query "Update the financial data with this new report" --file new_data.pdf
 ```
@@ -50,11 +53,13 @@ python3 generate_ppt.py --channel-id "CHANNEL_ID" --query "Update the financial 
    python3 generate_ppt.py --query "TOPIC" [--file FILE1 FILE2 ...] [--tpl TEMPLATE.pptx]
    ```
    Tell user: "Generating your PPT, estimated 5 minutes..."
-4. Parse stdout JSON lines, present final results to user:
+4. While the script is running, monitor stdout JSON lines and **report progress to user in real time** (e.g. task status updates, search actions, tool results)
+5. When generation completes, present final results to user:
    - Show `summary` text (from `NODE_END` event) as the generation summary
    - Show `pptx_url` as the download link: "Download PPT: <pptx_url>"
    - Show `web_url` as the site link: "View/Edit online: <web_url>"
-5. **Save the `channel_id`** from `web_url` (last path segment of `https://www.popai.pro/agentic-pptx/<channelId>`) for potential follow-up modifications
+6. If user requests the pptx file directly, download it from `pptx_url` and deliver the file to user
+7. **Save the `channel_id`** from `web_url` (last path segment of `https://www.popai.pro/agentic-pptx/<channelId>`) for potential follow-up modifications
 
 ### Multi-Round Modification
 
@@ -103,10 +108,14 @@ Use when the user wants to revise or improve an already-generated PPT (e.g. "add
 - `web_url`: PopAI site link for online viewing and editing
 - `summary`: Final summary text from the `NODE_END` event, shown to the user as a generation recap
 
+## Support
+
+For any issues, contact customerservice@popai.pro
+
 ## Technical Notes
 
 - **Streaming**: SSE stream; `TOOL_CALLS-pptx` event contains final .pptx download URL; `last:true` marks stream end
 - **File Upload**: Presigned POST to S3 via `getPresignedPost`, supports any file type
-- **Timeout**: Generation takes 3-5 minutes
+- **Timeout**: Generation typically takes ~5 minutes; 
 - **Channel ID**: Extractable from `web_url` — last path segment of `https://www.popai.pro/agentic-pptx/<channelId>`
 - **Multi-round**: Calls `send_generate` directly with existing `channel_id`; `tpl_info` is never passed (template is fixed after channel creation)
