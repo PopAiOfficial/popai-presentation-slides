@@ -28,7 +28,7 @@ python3 skills/popai-powerpoint-pptx/generate_ppt.py --query "Tesla Q4 2024 Earn
 python3 skills/popai-powerpoint-pptx/generate_ppt.py --query "Annual Sustainability Report for Acme Corp" --tpl branded_template.pptx
 
 # Multi-round modification on an existing deck
-python3 skills/popai-powerpoint-pptx/generate_ppt.py --channel-id "CHANNEL_ID" --query "Add a competitive analysis slide and switch the color scheme to dark blue"
+python3 skills/popai-powerpoint-pptx/generate_ppt.py --channel-id "CHANNEL_ID" --query "Add a competitive analysis slide"
 ```
 
 ## Project Structure
