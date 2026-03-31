@@ -1,7 +1,7 @@
 # PopAI Presentation Skill
 
 A Cursor skill for generating professional presentations (PPTX) via [PopAI](https://www.popai.pro) API.
-PopAI has built-in research capabilities — just provide a topic, and it will automatically search, collect, and organize relevant content into a polished slide deck.
+PopAI has built-in research capabilities - it will automatically search, collect, and organize relevant content into a polished slide deck.
 
 ## Setup
 
